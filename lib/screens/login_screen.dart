@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simple_login_flutter_app/utlis/constants/app_styles.dart';
 import 'dart:math';
-import '../firebase_options.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
