@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "465420592508",
+    "project_id": "simpleloginflutterapp",
+    "storage_bucket": "simpleloginflutterapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465420592508:android:dc57ec1c1d92e0df56b0f9",
+        "android_client_info": {
+          "package_name": "com.example.simple_login_flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoRQhawSexXgeH1DOzQOJlfDuiIK-9oUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
