@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:simple_login_flutter_app/utlis/constants/app_styles.dart';
+import 'package:simple_login_flutter_app/widgets/cmn_text.dart';
 
 import 'login_screen.dart';
 
+/// HomeScreen displays the user's Email ID and Firebase UID.
+/// It also provides a logout button to sign out from Firebase Authentication.
 class HomeScreen extends StatefulWidget {
   final String email;
   final String uid;
@@ -15,10 +18,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-
-
-
-  void _logout() async {
+  /// Handles user logout and navigates back to the login screen.
+  void _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
       context,
@@ -29,22 +30,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF01224D),
+      backgroundColor: AppStyles.bgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          }, // Handle back action
-        ),
-        title: const Text("Home Screen", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        title:  CmnText( msg :"Home Screen", textColor: Colors.white, fontSize: 18, fontWeight: FontWeight.bold,
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white,),
-            onPressed: _logout,
+            onPressed: () => _logout(context),
           ),
         ],
       ),
@@ -52,8 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Email: ${widget.email}", style: const TextStyle(color: Colors.white, fontSize: 18)),
-            Text("UID: ${widget.uid}", style: const TextStyle(color: Colors.white, fontSize: 18)),
+            CmnText( msg:"Email: ${widget.email}",textColor: Colors.white, fontSize: 18),
+            CmnText(msg :"UID: ${widget.uid}", textColor: Colors.white, fontSize: 18),
           ],
         ),
       ),
