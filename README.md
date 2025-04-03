@@ -74,15 +74,6 @@ flutter run --no-sound-null-safety
  ┣ 📜 README.md                  # Project Documentation
 ```
 
----
-
-## 🖥️ Screenshots  
-| Login Screen | Home Screen |
-|-------------|------------|
-| ![Login Screen](https://via.placeholder.com/200) | ![Home Screen](https://via.placeholder.com/200) |
-
----
-
 ## 🔥 How It Works  
 1️⃣ User enters email & password and logs in.  
 2️⃣ If authenticated, they are redirected to the **Home Screen**.  
