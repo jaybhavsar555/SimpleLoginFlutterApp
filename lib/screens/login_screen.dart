@@ -1,84 +1,57 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simple_login_flutter_app/utlis/constants/app_styles.dart';
+import '../controllers/login_controller.dart';
+import '../service/auth_service.dart';
 import 'home_screen.dart';
 
 /// LoginScreen allows users to sign in using Firebase Authentication.
 /// Upon successful authentication, users are redirected to the HomeScreen.
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  LoginScreen({super.key});
 
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  final _loginController = LoginController(AuthService());
+
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
 
   /// Function to handle login using Firebase Authentication
-  Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _login(BuildContext context) async {
+    if(_formKey.currentState!.validate()){
+      try {
+        final (credential, errorMessage) = await _loginController.login(_emailController.text.trim(), _passwordController.text.trim());
 
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+        if (errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+          return;
+        }
 
-      /// Navigate to HomeScreen upon successful login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(
-            email: _emailController.text.trim(),
-            uid: userCredential.user!.uid,
-          ),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      /// Show error message based on Firebase error codes
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_getFirebaseAuthErrorMessage(e.code))),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("An unexpected error occurred. Please try again later.")),
-      );
+        if(credential !=null){
+
+          /// Navigate to HomeScreen upon successful login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(
+                email: _emailController.text.trim(),
+                uid: credential.user!.uid,
+              ),
+            ),
+          );
+        }
+
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("An unexpected error occurred. Please try again later.")),
+        );
+      }
     }
   }
-
-  /// Function to map Firebase Authentication error codes to user-friendly messages
-  String _getFirebaseAuthErrorMessage(String errorCode) {
-    switch (errorCode) {
-      case 'invalid-email':
-        return "Invalid email format. Please check your email.";
-      case 'user-not-found':
-        return "No account found with this email. Please sign up first.";
-      case 'wrong-password':
-        return "Incorrect password. Try again or reset your password.";
-      case 'too-many-requests':
-        return "Too many failed attempts. Please try again later.";
-      case "user-disabled":
-        return "User with this email has been disabled.";
-      case "operation-not-allowed":
-        return "Signing in with Email and Password is not enabled.";
-      default:
-        return "Login failed. Please try again.";
-    }
-  }
-
-  bool _isValidEmail(String email) {
-    return RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$").hasMatch(email);
-  }
-
-  bool _isValidPassword(String password) {
-    return password.length >= 6;
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 15.h),
                   _buildPasswordField(),
                   SizedBox(height: 20.h),
-                  _buildLoginButton(),
+                  _buildLoginButton(context),
                   SizedBox(height: 20.h),
                   Text("or", style: TextStyle(color: Colors.white70, fontSize: 14.sp)),
                   SizedBox(height: 15.h),
@@ -124,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
   Widget _buildWelcomeText() {
     return Column(
       children: [
@@ -144,12 +118,19 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
       style: const TextStyle(color: Colors.white),
-      validator: (value) => value!.isEmpty
-          ? "Please enter your email"
-          : !_isValidEmail(value)
-          ? "Please enter a valid email"
-          : null,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return ("Please Enter Your Email");
+        }
+        // reg expression for email validation
+        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)) {
+          return ("Please Enter a valid email");
+        }
+        return null;
+      },
       textInputAction: TextInputAction.next,
       decoration: _inputDecoration("Email", Icons.email),
     );
@@ -160,18 +141,23 @@ class _LoginScreenState extends State<LoginScreen> {
       controller: _passwordController,
       obscureText: true,
       style: const TextStyle(color: Colors.white),
-      validator: (value) => value!.isEmpty
-          ? "Password is required for login"
-          : !_isValidPassword(value)
-          ? "Enter valid password (Min. 6 characters)"
-          : null,
+      validator: (value) {
+        RegExp regex = RegExp(r'^.{6,}$');
+        if (value!.isEmpty) {
+          return ("Password is required for login");
+        }
+        if (!regex.hasMatch(value)) {
+          return ("Enter Valid Password(Min. 6 Character)");
+        }
+        return null;
+      },
       decoration: _inputDecoration("Password", Icons.lock),
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: _login,
+      onPressed: () => _login(context),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,

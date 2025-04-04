@@ -10,11 +10,7 @@ import 'firebase_options.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   runApp(const MyApp());
 }
 
@@ -30,7 +26,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(390, 844),
+      designSize: const Size(390, 844), //(width, height)
       minTextAdapt: true,
       splitScreenMode: true,
       child: MaterialApp(
@@ -41,7 +37,7 @@ class _MyAppState extends State<MyApp> {
         ),
         home:  user != null
             ? HomeScreen(email: user?.email ?? "User", uid: user?.uid ?? '')
-            : const LoginScreen(),
+            : LoginScreen(),
       ),
     );
   }
