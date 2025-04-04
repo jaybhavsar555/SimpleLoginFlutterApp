@@ -7,10 +7,17 @@ import 'home_screen.dart';
 
 /// LoginScreen allows users to sign in using Firebase Authentication.
 /// Upon successful authentication, users are redirected to the HomeScreen.
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  bool _isLoading = false;
 
   final _loginController = LoginController(AuthService());
 
@@ -22,7 +29,16 @@ class LoginScreen extends StatelessWidget {
   Future<void> _login(BuildContext context) async {
     if(_formKey.currentState!.validate()){
       try {
+
+        setState(() {
+          _isLoading = true;
+        });
+
         final (credential, errorMessage) = await _loginController.login(_emailController.text.trim(), _passwordController.text.trim());
+
+        setState(() {
+          _isLoading = false;
+        });
 
         if (errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -157,14 +173,22 @@ class LoginScreen extends StatelessWidget {
 
   Widget _buildLoginButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () => _login(context),
+      onPressed:  _isLoading ? null :() => _login(context),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         minimumSize: Size(double.infinity, 50.h),
       ),
-      child: Text("Login", style: TextStyle(fontSize: 16.sp)),
+      child: _isLoading ?
+      SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          color: Colors.white,
+          strokeWidth: 2.5,
+        ),
+      ) : Text("Login", style: TextStyle(fontSize: 16.sp)),
     );
   }
 
